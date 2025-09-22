@@ -1,0 +1,512 @@
+@server=http://localhost:4004
+@username=alice
+@password=
+
+
+### Projects
+# @name Projects_GET
+GET {{server}}/odata/v4/main-jira/Projects
+Authorization: Basic {{username}}:{{password}}
+
+
+### Projects
+# @name Projects_POST
+POST {{server}}/odata/v4/main-jira/Projects
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+{
+  "ID": "11417641-3dc1-492f-9d3b-5aee4cff1e5c",
+  "name": "name-11417641",
+  "description": "description-11417641",
+  "startDate": "2007-02-17",
+  "endDate": "2001-10-14",
+  "manager": {
+    "corpID": "s-28019919"
+  },
+  "createdAt": "2021-10-04T00:00:00.000Z",
+  "createdBy": "createdBy.6spwp@example.net",
+  "modifiedAt": "2000-11-27T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.6spwp@example.net"
+}
+
+
+### Projects
+# @name Projects_PATCH
+PATCH {{server}}/odata/v4/main-jira/Projects/11417641-3dc1-492f-9d3b-5aee4cff1e5c
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+{
+  "ID": "11417641-3dc1-492f-9d3b-5aee4cff1e5c",
+  "name": "name-11417641",
+  "description": "description-11417641",
+  "startDate": "2007-02-17",
+  "endDate": "2001-10-14",
+  "manager": {
+    "corpID": "s-28019919"
+  },
+  "createdAt": "2021-10-04T00:00:00.000Z",
+  "createdBy": "createdBy.6spwp@example.net",
+  "modifiedAt": "2000-11-27T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.6spwp@example.net"
+}
+
+
+### Projects
+# @name Projects_DELETE
+DELETE {{server}}/odata/v4/main-jira/Projects/11417641-3dc1-492f-9d3b-5aee4cff1e5c
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+
+### Tasks
+# @name Tasks_GET
+GET {{server}}/odata/v4/main-jira/Tasks
+Authorization: Basic {{username}}:{{password}}
+
+
+### Tasks
+# @name Tasks_POST
+POST {{server}}/odata/v4/main-jira/Tasks
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+{
+  "ID": "25699870-7fb9-46c5-9d71-fdbf5476474b",
+  "name": "name-25699870",
+  "description": "description-25699870",
+  "noTasks": 14,
+  "progress": 0.2,
+  "project": {
+    "ID": "11417641-3dc1-492f-9d3b-5aee4cff1e5c"
+  },
+  "createdAt": "2023-04-26T00:00:00.000Z",
+  "createdBy": "createdBy.fau5a@example.org",
+  "modifiedAt": "2009-03-12T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.fau5a@example.net"
+}
+
+
+### Tasks
+# @name Tasks_PATCH
+PATCH {{server}}/odata/v4/main-jira/Tasks/25699870-7fb9-46c5-9d71-fdbf5476474b
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+{
+  "ID": "25699870-7fb9-46c5-9d71-fdbf5476474b",
+  "name": "name-25699870",
+  "description": "description-25699870",
+  "noTasks": 14,
+  "progress": 0.2,
+  "project": {
+    "ID": "11417641-3dc1-492f-9d3b-5aee4cff1e5c"
+  },
+  "createdAt": "2023-04-26T00:00:00.000Z",
+  "createdBy": "createdBy.fau5a@example.org",
+  "modifiedAt": "2009-03-12T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.fau5a@example.net"
+}
+
+
+### Tasks
+# @name Tasks_DELETE
+DELETE {{server}}/odata/v4/main-jira/Tasks/25699870-7fb9-46c5-9d71-fdbf5476474b
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+
+### Subtasks
+# @name Subtasks_GET
+GET {{server}}/odata/v4/main-jira/Subtasks
+Authorization: Basic {{username}}:{{password}}
+
+
+### Subtasks
+# @name Subtasks_POST
+POST {{server}}/odata/v4/main-jira/Subtasks
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+{
+  "ID": "88613923-6c1d-4dab-bce7-bc21564957e8",
+  "name": "name-8861392",
+  "description": "description-8861392",
+  "assigned": {
+    "corpID": "s-28019919"
+  },
+  "estimation": 42,
+  "assigner": {
+    "corpID": "s-28019919"
+  },
+  "priority": 2,
+  "status": 4,
+  "task": {
+    "ID": "25699870-7fb9-46c5-9d71-fdbf5476474b"
+  },
+  "createdAt": "2018-03-30T00:00:00.000Z",
+  "createdBy": "createdBy.59xhs@example.org",
+  "modifiedAt": "2004-11-19T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.59xhs@example.org"
+}
+
+
+### Subtasks
+# @name Subtasks_PATCH
+PATCH {{server}}/odata/v4/main-jira/Subtasks/88613923-6c1d-4dab-bce7-bc21564957e8
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+{
+  "ID": "88613923-6c1d-4dab-bce7-bc21564957e8",
+  "name": "name-8861392",
+  "description": "description-8861392",
+  "assigned": {
+    "corpID": "s-28019919"
+  },
+  "estimation": 42,
+  "assigner": {
+    "corpID": "s-28019919"
+  },
+  "priority": 2,
+  "status": 4,
+  "task": {
+    "ID": "25699870-7fb9-46c5-9d71-fdbf5476474b"
+  },
+  "createdAt": "2018-03-30T00:00:00.000Z",
+  "createdBy": "createdBy.59xhs@example.org",
+  "modifiedAt": "2004-11-19T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.59xhs@example.org"
+}
+
+
+### Subtasks
+# @name Subtasks_DELETE
+DELETE {{server}}/odata/v4/main-jira/Subtasks/88613923-6c1d-4dab-bce7-bc21564957e8
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+
+### Roles
+# @name Roles_GET
+GET {{server}}/odata/v4/main-jira/Roles
+Authorization: Basic {{username}}:{{password}}
+
+
+### Roles
+# @name Roles_POST
+POST {{server}}/odata/v4/main-jira/Roles
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+{
+  "role_id": "40124",
+  "role": "role-23040124",
+  "createdAt": "2016-12-14T00:00:00.000Z",
+  "createdBy": "createdBy.dptvg@example.com",
+  "modifiedAt": "2007-12-23T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.dptvg@example.org"
+}
+
+
+### Roles
+# @name Roles_PATCH
+PATCH {{server}}/odata/v4/main-jira/Roles/40124
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+{
+  "role_id": "40124",
+  "role": "role-23040124",
+  "createdAt": "2016-12-14T00:00:00.000Z",
+  "createdBy": "createdBy.dptvg@example.com",
+  "modifiedAt": "2007-12-23T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.dptvg@example.org"
+}
+
+
+### Roles
+# @name Roles_DELETE
+DELETE {{server}}/odata/v4/main-jira/Roles/40124
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+
+### Teams
+# @name Teams_GET
+GET {{server}}/odata/v4/main-jira/Teams
+Authorization: Basic {{username}}:{{password}}
+
+
+### Teams
+# @name Teams_POST
+POST {{server}}/odata/v4/main-jira/Teams
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+{
+  "ID": "16387113-619f-49f4-a972-08e4b8e32f8e",
+  "name": "name-16387113",
+  "createdAt": "2002-04-29T00:00:00.000Z",
+  "createdBy": "createdBy.9r8dl@example.org",
+  "modifiedAt": "2002-08-26T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.9r8dl@example.org"
+}
+
+
+### Teams
+# @name Teams_PATCH
+PATCH {{server}}/odata/v4/main-jira/Teams/16387113-619f-49f4-a972-08e4b8e32f8e
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+{
+  "ID": "16387113-619f-49f4-a972-08e4b8e32f8e",
+  "name": "name-16387113",
+  "createdAt": "2002-04-29T00:00:00.000Z",
+  "createdBy": "createdBy.9r8dl@example.org",
+  "modifiedAt": "2002-08-26T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.9r8dl@example.org"
+}
+
+
+### Teams
+# @name Teams_DELETE
+DELETE {{server}}/odata/v4/main-jira/Teams/16387113-619f-49f4-a972-08e4b8e32f8e
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+
+### Users
+# @name Users_GET
+GET {{server}}/odata/v4/main-jira/Users
+Authorization: Basic {{username}}:{{password}}
+
+
+### Users
+# @name Users_POST
+POST {{server}}/odata/v4/main-jira/Users
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+{
+  "corpID": "s-28019919",
+  "firstName": "firstName-28019919",
+  "lastName": "lastName-28019919",
+  "email": "ndexp' to create data for regex ^\\\\S+@\\\\S+\\\\.\\\\S+$",
+  "telephoneNumber": "(\\\\)\\\\-]{9,15}$",
+  "gender": "M",
+  "grade": "B2",
+  "salary": 99,
+  "position": {
+    "role_id": "40124"
+  },
+  "team": {
+    "ID": "16387113-619f-49f4-a972-08e4b8e32f8e"
+  },
+  "createdAt": "2021-02-28T00:00:00.000Z",
+  "createdBy": "createdBy.gokb3@example.org",
+  "modifiedAt": "2010-01-21T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.gokb3@example.net"
+}
+
+
+### Users
+# @name Users_PATCH
+PATCH {{server}}/odata/v4/main-jira/Users/s-28019919
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+{
+  "corpID": "s-28019919",
+  "firstName": "firstName-28019919",
+  "lastName": "lastName-28019919",
+  "email": "ndexp' to create data for regex ^\\\\S+@\\\\S+\\\\.\\\\S+$",
+  "telephoneNumber": "(\\\\)\\\\-]{9,15}$",
+  "gender": "M",
+  "grade": "B2",
+  "salary": 99,
+  "position": {
+    "role_id": "40124"
+  },
+  "team": {
+    "ID": "16387113-619f-49f4-a972-08e4b8e32f8e"
+  },
+  "createdAt": "2021-02-28T00:00:00.000Z",
+  "createdBy": "createdBy.gokb3@example.org",
+  "modifiedAt": "2010-01-21T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.gokb3@example.net"
+}
+
+
+### Users
+# @name Users_DELETE
+DELETE {{server}}/odata/v4/main-jira/Users/s-28019919
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+
+### Comments
+# @name Comments_GET
+GET {{server}}/odata/v4/main-jira/Comments
+Authorization: Basic {{username}}:{{password}}
+
+
+### Comments
+# @name Comments_POST
+POST {{server}}/odata/v4/main-jira/Comments
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+{
+  "ID": "32979432-060a-458c-96c6-51b6c66c9a36",
+  "content": "content-3297943",
+  "author": {
+    "corpID": "s-28019919"
+  },
+  "task": {
+    "ID": "25699870-7fb9-46c5-9d71-fdbf5476474b"
+  },
+  "subtask": {
+    "ID": "88613923-6c1d-4dab-bce7-bc21564957e8"
+  },
+  "createdAt": "2004-08-20T00:00:00.000Z",
+  "createdBy": "createdBy.1yopj@example.net",
+  "modifiedAt": "2007-02-01T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.1yopj@example.com"
+}
+
+
+### Comments
+# @name Comments_PATCH
+PATCH {{server}}/odata/v4/main-jira/Comments/32979432-060a-458c-96c6-51b6c66c9a36
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+{
+  "ID": "32979432-060a-458c-96c6-51b6c66c9a36",
+  "content": "content-3297943",
+  "author": {
+    "corpID": "s-28019919"
+  },
+  "task": {
+    "ID": "25699870-7fb9-46c5-9d71-fdbf5476474b"
+  },
+  "subtask": {
+    "ID": "88613923-6c1d-4dab-bce7-bc21564957e8"
+  },
+  "createdAt": "2004-08-20T00:00:00.000Z",
+  "createdBy": "createdBy.1yopj@example.net",
+  "modifiedAt": "2007-02-01T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.1yopj@example.com"
+}
+
+
+### Comments
+# @name Comments_DELETE
+DELETE {{server}}/odata/v4/main-jira/Comments/32979432-060a-458c-96c6-51b6c66c9a36
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+
+### Attachments
+# @name Attachments_GET
+GET {{server}}/odata/v4/main-jira/Attachments
+Authorization: Basic {{username}}:{{password}}
+
+
+### Attachments
+# @name Attachments_POST
+POST {{server}}/odata/v4/main-jira/Attachments
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+{
+  "ID": "14634837-adc6-47a3-a978-0e546b893e60",
+  "fileName": "fileName-14634837",
+  "url": "url-14634837",
+  "uploadedBy": {
+    "corpID": "s-28019919"
+  },
+  "uploadedAt": "2020-03-04T00:00:00.000Z",
+  "task": {
+    "ID": "25699870-7fb9-46c5-9d71-fdbf5476474b"
+  },
+  "subtask": {
+    "ID": "88613923-6c1d-4dab-bce7-bc21564957e8"
+  },
+  "createdAt": "2014-11-25T00:00:00.000Z",
+  "createdBy": "createdBy.8pob9@example.org",
+  "modifiedAt": "2021-11-13T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.8pob9@example.org"
+}
+
+
+### Attachments
+# @name Attachments_PATCH
+PATCH {{server}}/odata/v4/main-jira/Attachments/14634837-adc6-47a3-a978-0e546b893e60
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+{
+  "ID": "14634837-adc6-47a3-a978-0e546b893e60",
+  "fileName": "fileName-14634837",
+  "url": "url-14634837",
+  "uploadedBy": {
+    "corpID": "s-28019919"
+  },
+  "uploadedAt": "2020-03-04T00:00:00.000Z",
+  "task": {
+    "ID": "25699870-7fb9-46c5-9d71-fdbf5476474b"
+  },
+  "subtask": {
+    "ID": "88613923-6c1d-4dab-bce7-bc21564957e8"
+  },
+  "createdAt": "2014-11-25T00:00:00.000Z",
+  "createdBy": "createdBy.8pob9@example.org",
+  "modifiedAt": "2021-11-13T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.8pob9@example.org"
+}
+
+
+### Attachments
+# @name Attachments_DELETE
+DELETE {{server}}/odata/v4/main-jira/Attachments/14634837-adc6-47a3-a978-0e546b893e60
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+
+### escalateSubtask
+# @name escalateSubtask_POST
+POST {{server}}/odata/v4/main-jira/escalateSubtask
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+{
+  "subtaskID": "25854393-b4df-41b4-af2a-93d5fccdc714"
+}
+
+
+### promoteEmployee
+# @name promoteEmployee_POST
+POST {{server}}/odata/v4/main-jira/promoteEmployee
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+{
+  "corpID": "D-31509098",
+  "grade": "D1"
+}
+
+
+### increaseSalaryEmployee
+# @name increaseSalaryEmployee_POST
+POST {{server}}/odata/v4/main-jira/increaseSalaryEmployee
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+{
+  "corpID": "D-20358281",
+  "newSalary": 41
+}
