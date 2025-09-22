@@ -1,7 +1,9 @@
 import { Priorities, Status } from "#cds-models/kondiiq/projects/ts";
 import { errorMsg, Projects, Subtasks, Users } from "#cds-models/MainJira";
-import cds from "@sap/cds";
+import cds, { Query } from "@sap/cds";
 import { serviceWrapper, fieldsValidator } from "../utils/utils";
+import { join } from "path";
+import { argv } from "process";
 
 /**
  * Getter Task status
@@ -21,10 +23,7 @@ export async function getTaskStatusHandler(req : cds.Request): Promise<Projects 
         return result[0];
     } catch(error: unknown){
         console.error(error);
-        const result = {
-            message : error
-        } as errorMsg;
-        return result;
+        return {message: "Something went wrong"} as errorMsg;
     }
 }
 
@@ -33,11 +32,41 @@ export async function getUserWorkloadHandler(req : cds.Request) {
     if(!fieldsValidator(corpID)) return {message: "Something went wrong"} as errorMsg;      
     const srv = await serviceWrapper("MainJira");
     try{
-        const cqnQuery = cds.ql.SELECT
-            .from(Users)
-            .columns("subtasks", "grade")
-            .where({corpID : corpID});
-        return await srv.run(cqnQuery);
+        const query = {
+                SELECT : {
+                    from: {
+                        join: "left",
+                        args: [
+                            {
+                                ref: [Subtasks], as: 's'
+                            }, 
+                            {
+                                ref: [Users], as: 'u'
+                            }
+                        ],
+                        on: [
+                            {
+                                ref: ['s', 'assigned']
+                            },
+                            '=',
+                            {
+                                ref: ['u', 'corpID']
+                            }
+                        ]
+                    },
+                    columns: [
+                        { ref: ['u', 'corpID'] },
+                        { ref: ['u', 'grade'] },
+                        { ref: ['s', 'status'] },
+                        { ref: ['s', 'priority'] }
+                    ],
+                    where: [
+                        { ref: ['u', 'corpID'] }, '=', { val: corpID }
+                    ]
+                }
+            };
+        const result = await srv.run(query as any);
+        return result;
     } catch(error : unknown){
         return {message : error} as errorMsg;
     }

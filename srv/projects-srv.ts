@@ -16,6 +16,6 @@ export class MainJira extends cds.ApplicationService {
 
     this.on("promoteEmployee", promoteEmployeeHandler);
     
-        return await super.init();
+    return await super.init();
     }
 }
