@@ -1,9 +1,8 @@
 import { Priorities, Status } from "#cds-models/kondiiq/projects/ts";
 import { errorMsg, Projects, Subtasks, Users } from "#cds-models/MainJira";
-import cds, { Query } from "@sap/cds";
+import cds from "@sap/cds";
 import { serviceWrapper, fieldsValidator } from "../utils/utils";
-import { join } from "path";
-import { argv } from "process";
+import { log} from "../utils/logger"
 
 /**
  * Getter Task status
@@ -12,7 +11,9 @@ import { argv } from "process";
  */
 export async function getTaskStatusHandler(req : cds.Request): Promise<Projects | errorMsg> {
     const { taskID  } = req.data;
-    if(!fieldsValidator(taskID)) return {message: "Something went wrong"} as errorMsg;
+    if(!fieldsValidator(taskID)) {
+        log.error(`The field taskID is undefined`);
+        return {message: "Something went wrong"} as errorMsg;}
     const srv = await serviceWrapper("MainJira");
     try{
         const query = SELECT
@@ -23,13 +24,17 @@ export async function getTaskStatusHandler(req : cds.Request): Promise<Projects 
         return result[0];
     } catch(error: unknown){
         console.error(error);
+        log.error(`Something went wrong ${error}`);
         return {message: "Something went wrong"} as errorMsg;
     }
 }
 
 export async function getUserWorkloadHandler(req : cds.Request) {
     const { corpID } = req.data;         
-    if(!fieldsValidator(corpID)) return {message: "Something went wrong"} as errorMsg;      
+    if(!fieldsValidator(corpID)) {
+        log.error(`The field corpID is undefined`);
+        return {message: "Something went wrong"} as errorMsg;
+    }      
     const srv = await serviceWrapper("MainJira");
     try{
         const query = {
@@ -68,7 +73,8 @@ export async function getUserWorkloadHandler(req : cds.Request) {
         const result = await srv.run(query as any);
         return result;
     } catch(error : unknown){
-        return {message : error} as errorMsg;
+        log.error(`Something went wrong ${error}`);
+        return {message: "Something went wrong"} as errorMsg;
     }
 }
 
@@ -79,7 +85,10 @@ export async function getUserWorkloadHandler(req : cds.Request) {
  */
 export async function getProjectStatusHandler(req : cds.Request): Promise<Projects | errorMsg> {
     const { projectID } = req.data;
-    if(!fieldsValidator(projectID)) return {message: "Something went wrong"} as errorMsg;
+    if(!fieldsValidator(projectID)){
+        log.error(`The field projectID is undefined`);
+        return {message: "Something went wrong"} as errorMsg;
+    }
     const srv = await serviceWrapper("MainJira");
     try {
         const query = SELECT
@@ -88,8 +97,8 @@ export async function getProjectStatusHandler(req : cds.Request): Promise<Projec
             .where({ID : projectID});
         return await srv.run(query);
     } catch(error: unknown){
-        console.error(error);
-        return {message : error} as errorMsg;
+        log.error(`Something went wrong ${error}`);
+        return {message: "Something went wrong"} as errorMsg;
     }
 }
 
@@ -100,7 +109,10 @@ export async function getProjectStatusHandler(req : cds.Request): Promise<Projec
  */
 export async function calculateTaskOverallHandler(req : cds.Request): Promise<errorMsg | Number> {
     const { taskID } = req.data;
-    if(!fieldsValidator(taskID)) return {message: "Something went wrong"} as errorMsg;
+    if(!fieldsValidator(taskID)) {
+        log.error(`The field taskID is undefined`);
+        return {message: "Something went wrong"} as errorMsg;
+    }
     const srv = await serviceWrapper("MainJira");
     let resultQuery;
     try{
@@ -110,12 +122,14 @@ export async function calculateTaskOverallHandler(req : cds.Request): Promise<er
         resultQuery = await srv.run(querySubtasks);
     } catch(error: unknown) {
         console.error(`Something went wrong${error}`);
+        log.error(`Something went wrong ${error}`);
         return {message: "Something went wrong"} as errorMsg;
     }
     const isFinishedArray = resultQuery.map(subtask => {
         return subtask.status === Status.FINISHED;
     });
     const doneCount = isFinishedArray.filter(Boolean).length;
+    log.info(`Calculated overall is around ${doneCount === 0 ? 0 : doneCount / isFinishedArray.length}`);
     return doneCount === 0 ? 0 : doneCount / isFinishedArray.length;
 }
 
@@ -126,11 +140,15 @@ export async function calculateTaskOverallHandler(req : cds.Request): Promise<er
  */
 export async function escalateSubtaskHandler(req : cds.Request): Promise<boolean | errorMsg>  {
     const { subtaskID } = req.data;
-    if(!fieldsValidator(subtaskID)) return {message: "Something went wrong"} as errorMsg;
+    if(!fieldsValidator(subtaskID)) {
+        log.error(`The field subtaskID is undefined`);
+        return {message: "Something went wrong"} as errorMsg;
+    }
     const srv = await serviceWrapper("MainJira");
     const currentPriority = await getCurrentSubtaskPriority(subtaskID) as Subtasks;
     if(currentPriority[0]?.priority === Priorities.URGENT) {
         console.log('The highest priority already exist');
+        log.info('The highest priority already exist');
         return false;
     }
     try {
@@ -138,9 +156,11 @@ export async function escalateSubtaskHandler(req : cds.Request): Promise<boolean
             .set({priority : Priorities.URGENT})
             .where({ID : subtaskID});
         await srv.run(updateQuery);
+        log.info(`Priority increase ${Priorities.URGENT}`);
         return true;
     } catch(error: unknown) {
         console.error(error);
+        log.error(`Something went wrong ${error}`);
         return {message : error} as errorMsg;
     }
 }
@@ -159,6 +179,7 @@ export async function getCurrentSubtaskPriority(subtaskID: string): Promise<Subt
         return await srv.run(query);
     } catch(error: unknown) {
         console.error(error);
+        log.error(`Something went wrong ${error}`);
         return {message: "Something went wrong"} as errorMsg;
     }
 }
@@ -170,7 +191,10 @@ export async function getCurrentSubtaskPriority(subtaskID: string): Promise<Subt
  */
 export async function promoteEmployeeHandler(req : cds.Request): Promise<boolean | errorMsg> {
     const { corpID, grade } = req.data;
-    if(!fieldsValidator(corpID) || !fieldsValidator(grade)) return {message: "Something went wrong"} as errorMsg;
+    if(!fieldsValidator(corpID) || !fieldsValidator(grade)) {
+        log.error(`The field corpID or grade is undefined`);
+        return {message: "Something went wrong"} as errorMsg;
+    }
     const srv = await serviceWrapper("MainJira");
     const currentGradeQuery = SELECT
         .from(Users)
@@ -178,7 +202,8 @@ export async function promoteEmployeeHandler(req : cds.Request): Promise<boolean
         .where({corpID : corpID});
     const currentGrade = await srv.run(currentGradeQuery);
     if(currentGrade[0]?.grade === grade) {
-        console.log("Cannot promote user to the same grade ;)");
+        log.info(`Cannot promote user to the same grade`);
+        console.log("Cannot promote user to the same grade");
         return false;
     }
     try {
@@ -188,6 +213,7 @@ export async function promoteEmployeeHandler(req : cds.Request): Promise<boolean
         await srv.run(query);
         return true;
     } catch(error:unknown){
+        log.error(`Something went wrong ${error}`);
         console.error(error);
         return false;
     }
@@ -200,7 +226,10 @@ export async function promoteEmployeeHandler(req : cds.Request): Promise<boolean
  */
 export async function increaseSalaryEmployeeHandler(req : cds.Request): Promise<boolean | errorMsg> {
     const { corpID, newSalary} = req.data;
-    if(!fieldsValidator(corpID) || !fieldsValidator(newSalary)) return {message: "Something went wrong"} as errorMsg;
+    if(!fieldsValidator(corpID) || !fieldsValidator(newSalary)) {
+        log.error(`The field corpID or grade is undefined`);
+        return {message: "Something went wrong"} as errorMsg;
+    }
     const srv = await serviceWrapper("MainJira");
     try{
         const oldSalary = await srv.run(SELECT
@@ -209,23 +238,28 @@ export async function increaseSalaryEmployeeHandler(req : cds.Request): Promise<
             .where({corpID: corpID}));
         if(!oldSalary.length || oldSalary[0].salary == null){
             console.log("Old salary not found value");
+            log.info(`Old salary not found value`);
             return false;
         }
         if( Number(newSalary)> Number(oldSalary[0].salary * 1.1)){
             console.log("Cannot increase salary more than 10%");
+            log.info(`Cannot increase salary more than 10%`);
             return false;
         }
         if(Number(newSalary) < Number(oldSalary[0].salary)){
             console.log("Cannot decrease User salary");
+            log.info(`Cannot decrease User salary`);
             return false;
         }
         const query = UPDATE(Users)
             .set({salary : Number(newSalary)})
             .where({corpID : corpID});
             await srv.run(query);
+            log.info(`The salary increase to ${Number(newSalary)} for the user ${corpID}`);
             return true;
     } catch(error: unknown) {
         console.error(error)
+        log.error(`Something went wrong $error}`);
         return false;
     }
 }
