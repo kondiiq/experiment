@@ -1,5 +1,5 @@
 import { Priorities, Status } from "#cds-models/kondiiq/projects/ts";
-import { errorMsg, Projects, Subtasks, Users } from "#cds-models/MainJira";
+import { Attachments, errorMsg, Projects, Subtasks, Users } from "#cds-models/MainJira";
 import cds from "@sap/cds";
 import { serviceWrapper, fieldsValidator } from "../utils/utils";
 import { log} from "../utils/logger"
@@ -13,7 +13,7 @@ export async function getTaskStatusHandler(req : cds.Request): Promise<Projects 
     const { taskID  } = req.data;
     if(!fieldsValidator(taskID)) {
         log.error(`The field taskID is undefined`);
-        return {message: "Something went wrong"} as errorMsg;}
+        return {message: "The field taskID is undefined"} as errorMsg;}
     const srv = await serviceWrapper("MainJira");
     try{
         const query = SELECT
@@ -23,58 +23,38 @@ export async function getTaskStatusHandler(req : cds.Request): Promise<Projects 
         const result = await srv.run(query);
         return result[0];
     } catch(error: unknown){
-        console.error(error);
+        console.error(`Something went wrong ${error}`);
         log.error(`Something went wrong ${error}`);
-        return {message: "Something went wrong"} as errorMsg;
+        return {message: `Something went wrong ${error}`} as errorMsg;
     }
 }
 
-export async function getUserWorkloadHandler(req : cds.Request) {
+export async function getUserWorkloadHandler(req: cds.Request) {
     const { corpID } = req.data;         
     if(!fieldsValidator(corpID)) {
         log.error(`The field corpID is undefined`);
         return {message: "Something went wrong"} as errorMsg;
-    }      
+    }
     const srv = await serviceWrapper("MainJira");
-    try{
-        const query = {
-                SELECT : {
-                    from: {
-                        join: "left",
-                        args: [
-                            {
-                                ref: [Subtasks], as: 's'
-                            }, 
-                            {
-                                ref: [Users], as: 'u'
-                            }
-                        ],
-                        on: [
-                            {
-                                ref: ['s', 'assigned']
-                            },
-                            '=',
-                            {
-                                ref: ['u', 'corpID']
-                            }
-                        ]
-                    },
-                    columns: [
-                        { ref: ['u', 'corpID'] },
-                        { ref: ['u', 'grade'] },
-                        { ref: ['s', 'status'] },
-                        { ref: ['s', 'priority'] }
-                    ],
-                    where: [
-                        { ref: ['u', 'corpID'] }, '=', { val: corpID }
-                    ]
-                }
-            };
-        const result = await srv.run(query as any);
-        return result;
-    } catch(error : unknown){
+    try {
+        const userQuery = cds.ql.SELECT
+            .from(Users)
+            .columns("corpID", "grade")
+            .where({ corpID });
+        const user = (await srv.run(userQuery))[0];
+        if (!user) {
+            return { message: "User not found" } as errorMsg;
+        }
+        const subtasksQuery = cds.ql.SELECT
+            .from(Subtasks)
+            .columns("ID", "status", "priority", "task_ID", "description")
+            .where({ assigned_corpID: corpID });
+        const subtasks = await srv.run(subtasksQuery);
+        return { subtasks, user };
+    } catch(error: unknown) {
+        console.error(`Something went wrong ${error}`);
         log.error(`Something went wrong ${error}`);
-        return {message: "Something went wrong"} as errorMsg;
+        return {message: `Something went wrong ${error}`} as errorMsg;
     }
 }
 
@@ -98,7 +78,7 @@ export async function getProjectStatusHandler(req : cds.Request): Promise<Projec
         return await srv.run(query);
     } catch(error: unknown){
         log.error(`Something went wrong ${error}`);
-        return {message: "Something went wrong"} as errorMsg;
+        return {message: `Something went wrong ${error}`} as errorMsg;
     }
 }
 
@@ -111,7 +91,7 @@ export async function calculateTaskOverallHandler(req : cds.Request): Promise<er
     const { taskID } = req.data;
     if(!fieldsValidator(taskID)) {
         log.error(`The field taskID is undefined`);
-        return {message: "Something went wrong"} as errorMsg;
+        return {message: "The field taskID is undefined"} as errorMsg;
     }
     const srv = await serviceWrapper("MainJira");
     let resultQuery;
@@ -123,7 +103,7 @@ export async function calculateTaskOverallHandler(req : cds.Request): Promise<er
     } catch(error: unknown) {
         console.error(`Something went wrong${error}`);
         log.error(`Something went wrong ${error}`);
-        return {message: "Something went wrong"} as errorMsg;
+        return {message: `Something went wrong ${error}`} as errorMsg;
     }
     const isFinishedArray = resultQuery.map(subtask => {
         return subtask.status === Status.FINISHED;
@@ -147,7 +127,7 @@ export async function escalateSubtaskHandler(req : cds.Request): Promise<boolean
     const srv = await serviceWrapper("MainJira");
     const currentPriority = await getCurrentSubtaskPriority(subtaskID) as Subtasks;
     if(currentPriority[0]?.priority === Priorities.URGENT) {
-        console.log('The highest priority already exist');
+        console.info('The highest priority already exist');
         log.info('The highest priority already exist');
         return false;
     }
@@ -156,12 +136,13 @@ export async function escalateSubtaskHandler(req : cds.Request): Promise<boolean
             .set({priority : Priorities.URGENT})
             .where({ID : subtaskID});
         await srv.run(updateQuery);
-        log.info(`Priority increase ${Priorities.URGENT}`);
+        log.info(`Priority increase to ${Priorities.URGENT}`);
         return true;
     } catch(error: unknown) {
-        console.error(error);
+        console.error(`Something went wrong ${error}`);
+        console.error(`Something went wrong ${error}`);
         log.error(`Something went wrong ${error}`);
-        return {message : error} as errorMsg;
+        return {message : `Something went wrong ${error}`} as errorMsg;
     }
 }
 
@@ -180,7 +161,7 @@ export async function getCurrentSubtaskPriority(subtaskID: string): Promise<Subt
     } catch(error: unknown) {
         console.error(error);
         log.error(`Something went wrong ${error}`);
-        return {message: "Something went wrong"} as errorMsg;
+        return {message: `Something went wrong ${error}`} as errorMsg;
     }
 }
 
@@ -261,5 +242,32 @@ export async function increaseSalaryEmployeeHandler(req : cds.Request): Promise<
         console.error(error)
         log.error(`Something went wrong $error}`);
         return false;
+    }
+}
+
+export async function fileUploadHandler(req: cds.Request) : Promise<Attachments[] | unknown> {
+    const srv = await serviceWrapper("MainJira");
+    try{
+        const {file, taskID, description} = req.data;
+        if(!fieldsValidator(file) || !fieldsValidator(taskID) || !fieldsValidator(description) ) {
+        log.error(`The fields file or taskID or description is/re undefined`);
+        return req.reject(400, `The fields file or taskID or description is/re undefined`);
+        }
+        const attachment = {
+            fileName: file.name,
+            content: file.content,
+            description: description,
+            mediaType: file.mimeType,
+            size: file.size,
+            task_ID: taskID,
+            uploadedBy_corpID: req.user.id
+        };
+        const insertQuery = INSERT.into(Attachments).entries(attachment);
+        const result = await srv.run(insertQuery) as Attachments[];
+        log.info(`Succesfully inserted ${result.length} ${result.length === 1 ? 'file' : 'files'} `);
+        return result;
+    }catch(error: unknown){
+        log.error(`Something went wrong ${error}`);
+        return req.reject(400, `Something went wrong ${error}`);
     }
 }

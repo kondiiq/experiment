@@ -104,11 +104,14 @@ entity Comments : cuid, managed {
     subtask     : Association to Subtasks;  
 }
 
-entity Attachments  : cuid, managed {
-    fileName        : String(255);
-    url             : String(1024);
-    uploadedBy      : Association to Users;
-    uploadedAt      : Timestamp;
-    task            : Association to Tasks;    
-    subtask         : Association to Subtasks; 
+entity Attachments : cuid, managed {
+    fileName  : String(255);
+    @Core.MediaType: mediaType
+    description: String(255);
+    content   : LargeBinary;
+    mediaType : String;
+    size      : Integer;
+    task      : Association to Tasks;
+    subtask     : Association to Subtasks;
+    uploadedBy: Association to Users;
 }
