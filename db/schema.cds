@@ -95,7 +95,6 @@ entity Users : managed {
     attachments     : Association to many Attachments on attachments.uploadedBy = $self;
 }
 
-
 entity Comments : cuid, managed {
     content     : LargeString;
     author      : Association to Users;

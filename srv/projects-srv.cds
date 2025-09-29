@@ -14,6 +14,7 @@ service MainJira @(required: 'authenticated-user') {
     function getUserWorkload(corpID: String(10)) returns Users;
     function getProjectStatus(projectID: UUID) returns Projects;
     function calculateTaskOverall(taskID: UUID) returns Decimal;
+    function findUserWithCapacity() returns array of Users;
     action escalateSubtask(subtaskID: UUID) returns String;
     action promoteEmployee(corpID: String(10), grade: projects.Grade) returns Boolean;
     action increaseSalaryEmployee(corpID: String(10), newSalary: Integer) returns Boolean;

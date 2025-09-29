@@ -1,9 +1,8 @@
 import cds from '@sap/cds';
-import {getTaskStatusHandler, fileUploadHandler, getUserWorkloadHandler, promoteEmployeeHandler, getProjectStatusHandler, calculateTaskOverallHandler, escalateSubtaskHandler} from "./handler/projectsServiceHandler"
+import {getTaskStatusHandler, findUserWithCapacity, fileUploadHandler, getUserWorkloadHandler, promoteEmployeeHandler, getProjectStatusHandler, calculateTaskOverallHandler, escalateSubtaskHandler} from "./handler/projectsServiceHandler"
 
 export class MainJira extends cds.ApplicationService {
     async init() {
-        
     this.on("getTaskStatus", getTaskStatusHandler);
 
     this.on("getUserWorkload", getUserWorkloadHandler);
@@ -17,6 +16,8 @@ export class MainJira extends cds.ApplicationService {
     this.on("promoteEmployee", promoteEmployeeHandler);
 
     this.on("uploadFile", fileUploadHandler);
+
+    this.on("findUserWithCapacity", findUserWithCapacity);
     
     return await super.init();
     }

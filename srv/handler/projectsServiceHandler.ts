@@ -3,6 +3,7 @@ import { Attachments, errorMsg, Projects, Subtasks, Users } from "#cds-models/Ma
 import cds from "@sap/cds";
 import { serviceWrapper, fieldsValidator } from "../utils/utils";
 import { log} from "../utils/logger"
+import { collapseTextChangeRangesAcrossMultipleVersions } from "typescript";
 
 /**
  * Getter Task status
@@ -269,5 +270,17 @@ export async function fileUploadHandler(req: cds.Request) : Promise<Attachments[
     }catch(error: unknown){
         log.error(`Something went wrong ${error}`);
         return req.reject(400, `Something went wrong ${error}`);
+    }
+}
+
+export async function findUserWithCapacity(req: cds.Request) : Promise<Users[]> {
+    try{
+        const query = SELECT.from(Users, 'u')
+            .columns("corpID", "firstName", "lastName", "email", "telephoneNumber", "position", "team")
+            .where({assigned_corpID: {ref: ['u', 'corpID']}});
+        return (await serviceWrapper("MainJira")).run(query);
+    } catch(err:unknown){
+        log.error(`Something went wrong ${err}`);
+        return req.reject(400, `Something went wrong ${err}`);
     }
 }
