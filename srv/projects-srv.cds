@@ -19,7 +19,6 @@ service MainJira @(required: 'authenticated-user') {
     action promoteEmployee(corpID: String(10), grade: projects.Grade) returns Boolean;
     action increaseSalaryEmployee(corpID: String(10), newSalary: Integer) returns Boolean;
     action uploadFile(file: LargeBinary, fileName: String, taskID: UUID) returns Attachments;
-
     type errorMsg {
         message: String;
     }

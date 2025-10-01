@@ -1,9 +1,8 @@
 import { Priorities, Status } from "#cds-models/kondiiq/projects/ts";
-import { Attachments, errorMsg, Projects, Subtasks, Users } from "#cds-models/MainJira";
+import { Attachments, errorMsg, Projects, Subtasks, Tasks, Users } from "#cds-models/MainJira";
 import cds from "@sap/cds";
-import { serviceWrapper, fieldsValidator } from "../utils/utils";
+import { serviceWrapper, fieldsValidator, dateValidator } from "../utils/utils";
 import { log} from "../utils/logger"
-import { collapseTextChangeRangesAcrossMultipleVersions } from "typescript";
 
 /**
  * Getter Task status
@@ -282,5 +281,83 @@ export async function findUserWithCapacity(req: cds.Request) : Promise<Users[]> 
     } catch(err:unknown){
         log.error(`Something went wrong ${err}`);
         return req.reject(400, `Something went wrong ${err}`);
+    }
+}
+
+export async function afterCreateTaskHandle(data: Tasks, req: cds.Request) {
+    const task = Array.isArray(data) ? data[0] : data;
+    const subtasks: Subtasks[] | undefined = req.data?.subtaskToCreate; 
+    if (!subtasks || subtasks.length === 0) {
+        log.error("There is no subtasks from the template");
+        return req.reject(400, "There is no subtasks from the template");
+    }   
+    const finalPayload = subtasks.map(subtask => ({
+        ...subtask,
+        task_ID: task.ID
+    }));
+    try {
+        const srv = await serviceWrapper("MainJira");
+        const insertQuery = INSERT.into(Subtasks).entries(finalPayload);
+        return await srv.run(insertQuery);
+    } catch (error: unknown) {
+        log.error(`Something went wrong ${error}`);
+        return req.reject(400, `Something went wrong ${error}`);
+    }
+}
+
+export async function onUpdateTaskHandler(req: cds.Request) {
+    try {
+        const data = req.data;
+        if (data.status === Status.FINISHED) {
+            const srv = await serviceWrapper("MainJira");
+            const subtask = await srv.run(SELECT.from(Subtasks).where({ ID: data.ID }));
+            if (!subtask.length) {
+            log.error(`Subtask with ID ${data.ID} not found`);
+            return req.reject(404, `Subtask with ID ${data.ID} not found`);
+            }
+        const taskID = typeof subtask[0].task === 'object' ? subtask[0].task.ID : subtask[0].task;
+        const newProgress = await calculateTaskOverallHandler({ data: { taskID } } as cds.Request);
+        log.info(`Updating task ${taskID} progress to ${newProgress}`);
+        const updateQuery = UPDATE(Tasks)
+        .set({ progress: Number(newProgress) })
+        .where({ ID: taskID });
+        return await srv.run(updateQuery);
+    }
+    } catch (error: unknown) {
+        log.error(`Error in onUpdateTaskHandler: ${error}`);
+        return req.reject(500, `Internal Server Error: ${error}`);
+    }
+    return;
+}
+
+export async function onUpdateProjectEndDate(req: cds.Request) {
+    const data = req.data;
+    if (!data) {
+        log.error(`No data to update`);
+        return req.reject(404, `No data to update`);
+    }
+    try {
+        const srv = await serviceWrapper("MainJira");
+        const tasksStatusQuery = SELECT.from(Tasks)
+            .columns("progress")
+            .where({ project_ID: data.ID });
+        const tasksStatuses = await srv.run(tasksStatusQuery);
+        const progressBar = tasksStatuses.map(task => task.progress >= 100);
+        if (progressBar.includes(false)) {
+            log.info('Cannot update endDate, because not every task is completed');
+            return;
+        }
+        const currentDate = new Date();
+        if(!dateValidator(currentDate)) {
+            log.error(`Date ${currentDate} is not supported date`);
+            return req.reject(400, `Date ${currentDate} is not supported date`);
+        }
+        const updateQuery = UPDATE(Projects).set({ endDate: currentDate }).where({ ID: data.ID });
+        await srv.run(updateQuery);
+        log.info(`Updating endDate with ${currentDate.toISOString()} because all tasks completed`);
+        return {message: `Updating endDate with ${currentDate.toISOString()} because all tasks completed`};
+    } catch (error: unknown) {
+        log.error(`Error in onUpdateProjectEndDate: ${error}`);
+        return req.reject(500, `Internal Server Error: ${error}`);
     }
 }
