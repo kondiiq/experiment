@@ -37,8 +37,10 @@ export default [
       '@typescript-eslint': tsPlugin,
     },
     rules: {
-      'no-console': 'off',
+      'no-console': 'error',
+      "semi": ["error", "always"],
       'require-atomic-updates': 'off',
+      "@sap/cds/valid-csv-header": ["warn", "show"],
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
