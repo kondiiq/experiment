@@ -1,5 +1,5 @@
 import cds from '@sap/cds';
-import { getTaskStatusHandler, findUserWithCapacity, onUpdateTaskHandler, onUpdateProjectEndDate, fileUploadHandler, afterCreateTaskHandle, getUserWorkloadHandler, promoteEmployeeHandler, getProjectStatusHandler, calculateTaskOverallHandler, escalateSubtaskHandler } from "./handler/projectsServiceHandler"
+import { getTaskStatusHandler, sendReminderHandler, findUserWithCapacity, onUpdateTaskHandler, onUpdateProjectEndDate, fileUploadHandler, afterCreateTaskHandle, getUserWorkloadHandler, promoteEmployeeHandler, getProjectStatusHandler, calculateTaskOverallHandler, escalateSubtaskHandler } from "./handler/projectsServiceHandler"
 import { Projects, Subtasks, Tasks } from '#cds-models/MainJira';
 
 export class MainJira extends cds.ApplicationService {
@@ -16,7 +16,7 @@ export class MainJira extends cds.ApplicationService {
         this.on(UPDATE, Subtasks, onUpdateTaskHandler);
         this.on(UPDATE, Projects, onUpdateProjectEndDate)
         this.after(CREATE, Tasks, afterCreateTaskHandle);
-
+        this.on("sendReminder", sendReminderHandler);
         return await super.init();
     }
 }

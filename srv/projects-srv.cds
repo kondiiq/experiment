@@ -1,6 +1,7 @@
 using {kondiiq.projects.ts as projects} from '../db/schema';
 
 service MainJira @(required: 'authenticated-user') {
+
     entity Projects    as projection on projects.Projects;
     entity Tasks       as projection on projects.Tasks;
     entity Subtasks    as projection on projects.Subtasks;
@@ -19,6 +20,7 @@ service MainJira @(required: 'authenticated-user') {
     action   promoteEmployee(corpID: String(10), grade: projects.Grade)     returns Boolean;
     action   increaseSalaryEmployee(corpID: String(10), newSalary: Integer) returns Boolean;
     action   uploadFile(file: LargeBinary, fileName: String, taskID: UUID)  returns Attachments;
+    action sendReminder() returns Boolean;
 
     type errorMsg {
         message : String;

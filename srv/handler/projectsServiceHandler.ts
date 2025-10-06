@@ -391,3 +391,24 @@ export async function onUpdateProjectEndDate(req: cds.Request) {
         return req.reject(500, `Internal Server Error: ${error}`);
     }
 }
+
+export async function sendReminderHandler(req: cds.Request){
+    const currentTime = new Date();
+    let result;
+    if(!dateValidator(currentTime)) {
+        req.reject(400 , "Current data is not available");
+    }
+    const query = SELECT.from(Subtasks)
+        .columns("ID", "name", "description", "task_ID")
+        .where(['status <>', Status.FINISHED]);
+    try{
+        const srv = serviceWrapper("MainJira");
+        result = (await srv).run(query);
+    } catch(error: unknown) {
+        req.reject(400, error);
+    }
+}
+
+export async function sendReminder(taskID: UUID) {
+    
+}
