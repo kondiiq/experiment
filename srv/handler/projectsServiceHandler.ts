@@ -30,32 +30,36 @@ export async function getTaskStatusHandler(req: cds.Request): Promise<Projects |
     }
 }
 
-export async function getUserWorkloadHandler(req: cds.Request) {
-    const { corpID } = req.data;
-    if (!fieldsValidator(corpID)) {
-        log.error(`The field corpID is undefined`);
-        return { message: "Something went wrong" } as errorMsg;
-    }
-    const srv = await serviceWrapper("MainJira");
+export async function getUsersWorkloadHandler(req: cds.Request)  {
     try {
-        const userQuery = cds.ql.SELECT
-            .from(Users)
-            .columns("corpID", "grade")
-            .where({ corpID });
-        const user = (await srv.run(userQuery))[0];
-        if (!user) {
-            return { message: "User not found" } as errorMsg;
-        }
-        const subtasksQuery = cds.ql.SELECT
-            .from(Subtasks)
-            .columns("ID", "status", "priority", "task_ID", "description")
-            .where({ assigned_corpID: corpID });
-        const subtasks = await srv.run(subtasksQuery);
-        return { subtasks, user };
+        const srv = await serviceWrapper("MainJira");
+        const finalQuery = SELECT.from(Users, (user) => {
+            return [
+                user.corpID,
+                user.firstName,
+                user.lastName,
+                user.email,
+                user.telephoneNumber,
+                user.grade,
+                user.subtasks((subtask) => {
+                    subtask.ID,
+                    subtask.name,
+                    subtask.description,
+                    subtask.estimation,
+                    subtask.priority,
+                    subtask.status,
+                    subtask.task,
+                    subtask.task_ID
+                }),
+                user.position,
+            ]
+        });
+        const subtasks = await srv.run(finalQuery);
+        return subtasks;
     } catch (error: unknown) {
         console.error(`Something went wrong ${error}`);
         log.error(`Something went wrong ${error}`);
-        return { message: `Something went wrong ${error}` } as errorMsg;
+        return req.error(400, `Something went wrong ${error}`);
     }
 }
 

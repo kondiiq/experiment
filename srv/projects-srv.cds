@@ -12,7 +12,7 @@ service MainJira @(required: 'authenticated-user') {
     entity Attachments as projection on projects.Attachments;
 
     function getTaskStatus(taskID: UUID)                                    returns Decimal;
-    function getUserWorkload(corpID: String(10))                            returns Users;
+    function getUsersWorkload()                            returns Users;
     function getProjectStatus(projectID: UUID)                              returns Projects;
     function calculateTaskOverall(taskID: UUID)                             returns Decimal;
     function findUserWithCapacity()                                         returns array of Users;

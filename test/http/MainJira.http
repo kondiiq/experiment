@@ -418,6 +418,12 @@ GET {{server}}/odata/v4/main-jira/Attachments
 Authorization: Basic {{username}}:{{password}}
 
 
+### getUsersWorkload
+# @name getUsersWorkload
+GET {{server}}/odata/v4/main-jira/getUsersWorkload
+Authorization: Basic {{username}}:{{password}}
+
+
 ### Attachments
 # @name Attachments_POST
 POST {{server}}/odata/v4/main-jira/Attachments
