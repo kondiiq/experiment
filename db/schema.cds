@@ -75,18 +75,6 @@ entity Subtasks : cuid, managed {
                     on attachments.subtask = $self;
 }
 
-entity Subtasks.texts {
-    key locale : sap.common.Locale;
-    key ID : UUID; //= source's primary key
-    descriptio : String;
-}
-
-extend entity Subtasks with {
-    texts : Composition of many Subtasks.texts on texts.ID=ID;
-    localized : Association to Subtasks.texts on localized.ID=ID
-    and localized.locale = $user.locale;
-}
-
 entity Roles : managed {
     key role_id : String(5);
         role    : String(50);

@@ -41,17 +41,18 @@ export async function getUsersWorkloadHandler(req: cds.Request)  {
                 user.email,
                 user.telephoneNumber,
                 user.grade,
+                user.position,
                 user.subtasks((subtask) => {
                     subtask.ID,
                     subtask.name,
                     subtask.description,
                     subtask.estimation,
-                    subtask.priority,
+                    subtask.priority,            
                     subtask.status,
                     subtask.task,
                     subtask.task_ID
                 }),
-                user.position,
+                
             ]
         });
         const subtasks = await srv.run(finalQuery);
@@ -411,8 +412,4 @@ export async function sendReminderHandler(req: cds.Request){
     } catch(error: unknown) {
         req.reject(400, error);
     }
-}
-
-export async function sendReminder(taskID: UUID) {
-    
 }
