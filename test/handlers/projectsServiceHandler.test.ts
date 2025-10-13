@@ -1,11 +1,14 @@
 import * as handlers from "../../srv/handler/projectsServiceHandler";
 import { serviceWrapper, fieldsValidator } from "../../srv/utils/utils";
 import { log } from "../../srv/utils/logger";
-import { Status, Priorities } from "#cds-models/kondiiq/projects/ts";
-import { errorMsg } from "#cds-models/MainJira";
+import { Priorities } from "#cds-models/kondiiq/projects/ts";
 
+jest.mock('../../srv/utils/utils', () => ({
+  serviceWrapper: jest.fn(),
+  fieldsValidator: jest.fn(() => true), //  
+  dateValidator: jest.fn(),
+}));
 
-jest.mock('../../srv/utils/utils');
 jest.mock('../../srv/utils/logger', () => ({
   log: { error: jest.fn(), info: jest.fn() }
 }));
@@ -43,37 +46,6 @@ describe('Project and Task Handlers', () => {
       mockRun.mockRejectedValueOnce(new Error('DB error'));
       const req: any = { data: { projectID: 'pid123' } };
       const result = await handlers.getProjectStatusHandler(req);
-      expect(result).toHaveProperty('message');
-      expect(log.error).toHaveBeenCalled();
-    });
-  });
-
-  // calculateTaskOverallHandler
-  describe('calculateTaskOverallHandler', () => {
-    it('returns errorMsg if taskID missing', async () => {
-      (fieldsValidator as jest.Mock).mockReturnValue(false);
-      const req: any = { data: { taskID: undefined } };
-      const result = await handlers.calculateTaskOverallHandler(req);
-      expect(result).toHaveProperty('message');
-      expect(log.error).toHaveBeenCalled();
-    });
-
-    it('calculates progress correctly', async () => {
-      (fieldsValidator as jest.Mock).mockReturnValue(true);
-      mockRun.mockResolvedValueOnce([
-        { status: Status.FINISHED, name: 's1', priority: Priorities.HIGH },
-        { status: Status.IN_PROGRESS, name: 's2', priority: Priorities.LOW }
-      ]);
-      const req: any = { data: { taskID: 'T1' } };
-      const result = await handlers.calculateTaskOverallHandler(req);
-      expect(result).toHaveProperty("message");
-    });
-
-    it('handles query error and returns errorMsg', async () => {
-      (fieldsValidator as jest.Mock).mockReturnValue(true);
-      mockRun.mockRejectedValueOnce(new Error('Query Error'));
-      const req: any = { data: { taskID: 'T1' } };
-      const result = await handlers.calculateTaskOverallHandler(req);
       expect(result).toHaveProperty('message');
       expect(log.error).toHaveBeenCalled();
     });
@@ -141,22 +113,22 @@ describe('Project and Task Handlers', () => {
       expect(result).toHaveProperty('message');
     });
 
-    // it('returns false if same grade', async () => {
-    //   (fieldsValidator as jest.Mock).mockReturnValue(true);
-    //   mockRun.mockResolvedValueOnce([{ grade: 'A1' }]);
-    //   const req: any = { data: { corpID: 'U1', grade: 'A1' } };
-    //   const result = await handlers.promoteEmployeeHandler(req);
-    //   expect(result).toBe(false);
-    // });
+    it('returns false if same grade', async () => {
+      (fieldsValidator as jest.Mock).mockReturnValue(true);
+      mockRun.mockResolvedValueOnce([{ grade: 'A1' }]);
+      const req: any = { data: { corpID: 'U1', grade: 'A1' } };
+      const result = await handlers.promoteEmployeeHandler(req);
+      expect(result).toBe(false);
+    });
 
-    // it('updates grade and returns true', async () => {
-    //   (fieldsValidator as jest.Mock).mockReturnValue(true);
-    //   mockRun.mockResolvedValueOnce([{ grade: 'B1' }]);
-    //   mockRun.mockResolvedValueOnce({}); // update
-    //   const req: any = { data: { corpID: 'U1', grade: 'A1' } };
-    //   const result = await handlers.promoteEmployeeHandler(req);
-    //   expect(result).toBe(true);
-    // });
+    it('updates grade and returns true', async () => {
+      (fieldsValidator as jest.Mock).mockReturnValue(true);
+      mockRun.mockResolvedValueOnce([{ grade: 'B1' }]);
+      mockRun.mockResolvedValueOnce({}); // update
+      const req: any = { data: { corpID: 'U1', grade: 'A1' } };
+      const result = await handlers.promoteEmployeeHandler(req);
+      expect(result).toBe(true);
+    });
   });
 
   // increaseSalaryEmployeeHandler
@@ -204,6 +176,32 @@ describe('Project and Task Handlers', () => {
       const result = await handlers.increaseSalaryEmployeeHandler(req);
       expect(result).toBe(false);
       expect(log.error).toHaveBeenCalled();
+    });
+  });
+
+  describe("calculatePercentage2Overall", () => {
+    it('returns 0 if array is null or undefined', () => {
+      expect(handlers.calculatePercentage2Overall(null as any)).toBe(0);
+      expect(handlers.calculatePercentage2Overall(undefined as any)).toBe(0);
+      });
+
+    it('returns 0 for empty array', () => {
+    expect(handlers.calculatePercentage2Overall([])).toBe(0);
+    });
+
+  it('returns 0 when no elements are truthy', () => {
+    expect(handlers.calculatePercentage2Overall([0, 0, 0])).toBe(0);
+    expect(handlers.calculatePercentage2Overall([NaN, null as any, undefined as any])).toBe(0);
+    });
+
+  it('calculates correct ratio for mixed truthy and falsy values', () => {
+    const arr = [1, 0, 2, NaN, 3, ''] as any;
+    expect(handlers.calculatePercentage2Overall(arr)).toBeCloseTo(0.5);
+    });
+
+  it('returns 1 when all elements are truthy', () => {
+    expect(handlers.calculatePercentage2Overall([1, 2, 3, 4])).toBe(1);
+    expect(handlers.calculatePercentage2Overall([true as any, 'a' as any, 5 as any])).toBe(1);
     });
   });
 

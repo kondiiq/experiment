@@ -113,10 +113,18 @@ export async function calculateTaskOverallHandler(req: cds.Request): Promise<err
     }
     const isFinishedArray = resultQuery.map(subtask => {
         return subtask.status === Status.FINISHED;
-    });
-    const doneCount = isFinishedArray.filter(Boolean).length;
-    log.info(`Calculated overall is around ${doneCount === 0 ? 0 : doneCount / isFinishedArray.length}`);
-    return doneCount === 0 ? 0 : doneCount / isFinishedArray.length;
+    }) as number[];
+    const doneCount = calculatePercentage2Overall(isFinishedArray);
+    log.info(`Calculated overall is around ${doneCount}`);
+    return doneCount;
+}
+
+export function calculatePercentage2Overall(arr: Array<Number>) {
+    if(!arr) {
+        return 0;
+    }
+    const doneCount = arr.filter(Boolean).length;
+    return doneCount === 0 ? 0 : doneCount / arr.length;
 }
 
 /**
